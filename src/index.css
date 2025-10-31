@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+    --color-dark-text: var(--dark-text);
+    --color-light-text: var(--light-text);
+    --color-dark-background: var(--dark-background);
+    --color-light-background: var(--light-background);
+    --color-accent: var(--accent);
+    --color-button-border: var(--button-border);
+}
+
+:root {
+    --dark-text: #292929;
+    --light-text: #f9f8f8;
+    --dark-background: #2f4550;
+    --light-background: #586f7c;
+    --accent: #b8dbd9;
+    --button-border: #b8dbd9;
+}
+
+.theme-dark {
+    --dark-text: #292929;
+    --light-text: #f9f8f8;
+    --dark-background: #2f4550;
+    --light-background: #586f7c;
+    --accent: #b8dbd9;
+    --button-border: #b8dbd9;
+}
+.theme-light {
+    --dark-text: #5e4b56;
+    --light-text: #5e4b56;
+    --dark-background: #dbe7e4;
+    --light-background: #eddcd2;
+    --accent: #dbe7e4;
+    --button-border: #5e4b56;
+}
+
+html,
+#root {
+    background-color: var(--dark-background);
+    color: var(--dark-text);
+}
+
+button {
+    background-color: var(--light-background);
+    color: var(--light-text);
+    margin: 4px;
+}
