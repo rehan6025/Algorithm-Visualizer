@@ -1,32 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 
-const bubbleSortFrames = (array: number[]): number[][] => {
-    const arr = [...array];
-    const frames: number[][] = [];
+// const bubbleSortFrames = (array: number[]): number[][] => {
+//     const arr = [...array];
+//     const frames: number[][] = [];
 
-    for (let i = arr.length - 1; i >= 0; i--) {
-        let swapped = false;
-        for (let j = 0; j < i; j++) {
-            if (arr[j] > arr[j + 1]) {
-                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-                swapped = true;
-            }
-            frames.push([...arr]);
-        }
-        if (!swapped) break;
-    }
+//     for (let i = arr.length - 1; i >= 0; i--) {
+//         let swapped = false;
+//         for (let j = 0; j < i; j++) {
+//             if (arr[j] > arr[j + 1]) {
+//                 [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+//                 swapped = true;
+//             }
+//             frames.push([...arr]);
+//         }
+//         if (!swapped) break;
+//     }
 
-    return frames;
-};
+//     return frames;
+// };
 
 const SortingVisualizer = () => {
     const [array, setArray] = useState<number[]>([]);
     const [isSorting, setIsSorting] = useState(false);
     const [active, setActive] = useState<number[]>([]);
     const [sortedEle, setSortedEle] = useState<number[]>([]);
-    const [frames, setFrames] = useState<number[][]>([]);
+    // const [frames, setFrames] = useState<number[][]>([]);
     const [size, setSize] = useState<number>(75);
     const [speed, setSpeed] = useState<number>(175);
+    const [minim, setMinim] = useState<number>();
     const MAX_SPEED = 350;
     const cancelRef = useRef(false);
 
@@ -36,7 +37,7 @@ const SortingVisualizer = () => {
         );
     };
 
-    async function mergeSort(array: number[]) {
+    async function bubbleSort(array: number[]) {
         setSortedEle([]);
 
         for (let i = array.length - 1; i >= 0; i--) {
@@ -83,21 +84,60 @@ const SortingVisualizer = () => {
         return array;
     }
 
-    useEffect(() => {
-        if (frames.length === 0) return;
+    async function selectionSort(array: number[]) {
+        setSortedEle([]);
+        setMinim(-1);
+        for (let i = 0; i < array.length; i++) {
+            let mini = i;
 
-        setIsSorting(true);
-        frames.forEach((frame, index) => {
-            setTimeout(() => {
-                setArray(frame);
-
-                if (index === frames.length - 1) {
-                    setSortedEle(Array.from(Array(frame.length).keys()));
-                    setIsSorting(false);
+            if (cancelRef.current) return;
+            setMinim(i);
+            for (let j = i + 1; j < array.length; j++) {
+                setActive([i, j]);
+                await new Promise((resolve) => {
+                    setTimeout(resolve, speed + 10);
+                });
+                if (cancelRef.current) return;
+                if (array[j] < array[mini]) {
+                    mini = j;
+                    setMinim(j);
                 }
-            }, index * 300);
-        });
-    }, [frames]);
+            }
+            await new Promise((resolve) => {
+                setTimeout(resolve, speed + 10);
+            });
+            if (cancelRef.current) return;
+            if (mini != i) {
+                array[i] = array[mini] + array[i];
+                array[mini] = array[i] - array[mini];
+                array[i] = array[i] - array[mini];
+                await new Promise((resolve) => {
+                    setTimeout(resolve, speed + 10);
+                });
+                if (cancelRef.current) return;
+            }
+            await new Promise((resolve) => {
+                setTimeout(resolve, speed + 10);
+            });
+            setSortedEle((prev) => [...prev, i]);
+        }
+    }
+
+    // useEffect(() => {
+    //     if (frames.length === 0) return;
+
+    //     setIsSorting(true);
+    //     frames.forEach((frame, index) => {
+    //         setTimeout(() => {
+    //             setArray(frame);
+
+    //             if (index === frames.length - 1) {
+    //                 setSortedEle(Array.from(Array(frame.length).keys()));
+    //                 setIsSorting(false);
+    //             }
+    //         }, index * 300);
+    //     });
+    // }, [frames]);
 
     useEffect(() => {
         generateNewArray();
@@ -115,6 +155,7 @@ const SortingVisualizer = () => {
         setArray(newArray);
         setIsSorting(false);
         setSortedEle([]);
+        setMinim(-1);
     };
 
     return (
@@ -127,9 +168,11 @@ const SortingVisualizer = () => {
                         className={`${
                             sortedEle.includes(index)
                                 ? "bg-orange-400"
+                                : minim === index
+                                ? "bg-amber-50"
                                 : active.includes(index)
                                 ? "bg-green-400"
-                                : "bg-amber-300"
+                                : "bg-teal-500"
                         } w-1 ml-1  `}
                     ></span>
                 ))}
@@ -172,7 +215,7 @@ const SortingVisualizer = () => {
                     cancelRef.current = false;
                     setIsSorting(true);
 
-                    await mergeSort(array);
+                    await bubbleSort(array);
 
                     setIsSorting(false);
                 }}
@@ -180,12 +223,24 @@ const SortingVisualizer = () => {
             >
                 Bubble Sort
             </button>
-            <button
+            {/* <button
                 onClick={() => {
                     setFrames(bubbleSortFrames(array));
                 }}
             >
                 new bubble sort
+            </button> */}
+
+            <button
+                className="px-4 py-2 bg-light-background text-light-text rounded"
+                onClick={async () => {
+                    cancelRef.current = false;
+                    setIsSorting(true);
+                    await selectionSort(array);
+                    setIsSorting(false);
+                }}
+            >
+                Selection Sort
             </button>
         </div>
     );
