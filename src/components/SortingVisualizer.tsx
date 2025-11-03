@@ -123,6 +123,63 @@ const SortingVisualizer = () => {
         }
     }
 
+    async function mergeSort(array: number[]) {
+        const temp = new Array(array.length);
+        await _mergeSort(array, temp, 0, array.length - 1);
+    }
+
+    async function _mergeSort(
+        array: number[],
+        temp: number[],
+        start: number,
+        end: number
+    ) {
+        setActive([]);
+        if (start >= end) return;
+
+        const mid = Math.floor((start + end) / 2);
+
+        await _mergeSort(array, temp, start, mid);
+        await _mergeSort(array, temp, mid + 1, end);
+
+        let i = start;
+        let j = mid + 1;
+        let k = start;
+
+        while (i <= mid && j <= end) {
+            if (array[i] <= array[j]) {
+                temp[k++] = array[i++];
+            } else {
+                temp[k++] = array[j++];
+            }
+            await new Promise((resolve) => {
+                setTimeout(resolve, speed);
+            });
+
+            setActive([i, j]);
+        }
+
+        while (i <= mid) {
+            temp[k++] = array[i++];
+            setActive([i]);
+        }
+
+        while (j <= end) {
+            temp[k++] = array[j++];
+            setActive([j]);
+        }
+
+        for (let x = start; x <= end; x++) {
+            setActive([x]);
+            array[x] = temp[x];
+            await new Promise((resolve) => {
+                setTimeout(resolve, speed);
+            });
+        }
+
+        setActive([]);
+    }
+
     // useEffect(() => {
     //     if (frames.length === 0) return;
 
@@ -173,7 +230,7 @@ const SortingVisualizer = () => {
                                 : active.includes(index)
                                 ? "bg-green-400"
                                 : "bg-teal-500"
-                        } w-1 ml-1  `}
+                        } w-1 ml-1 transition-all duration-75 `}
                     ></span>
                 ))}
             </div>
@@ -226,7 +283,7 @@ const SortingVisualizer = () => {
             {/* <button
                 onClick={() => {
                     setFrames(bubbleSortFrames(array));
-                }}
+                }}  
             >
                 new bubble sort
             </button> */}
@@ -241,6 +298,17 @@ const SortingVisualizer = () => {
                 }}
             >
                 Selection Sort
+            </button>
+            <button
+                className="px-4 py-2 bg-light-background text-light-text rounded"
+                onClick={async () => {
+                    cancelRef.current = false;
+                    setIsSorting(true);
+                    await mergeSort(array);
+                    setIsSorting(false);
+                }}
+            >
+                Merge Sort
             </button>
         </div>
     );

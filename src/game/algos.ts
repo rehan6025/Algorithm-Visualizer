@@ -1,19 +1,42 @@
-export function mergeSort(array: number[]): number[] {
-    for (let i = array.length - 1; i >= 0; i--) {
-        let flag: boolean = false;
-        for (let j = 0; j <= i - 1; j++) {
-            if (array[j] > array[j + 1]) {
-                array[j] = array[j] + array[j + 1];
-                array[j + 1] = array[j] - array[j + 1];
-                array[j] = array[j] - array[j + 1];
+export function mergeSort(array: number[]): void {
+    const temp = new Array(array.length);
+    _mergeSort(array, temp, 0, array.length - 1);
+}
 
-                flag = true;
-            }
-        }
-        if (flag === false) {
-            break;
+function _mergeSort(
+    array: number[],
+    temp: number[],
+    start: number,
+    end: number
+): void {
+    if (start >= end) return;
+
+    const mid = Math.floor((start + end) / 2);
+
+    _mergeSort(array, temp, start, mid);
+    _mergeSort(array, temp, mid + 1, end);
+
+    let i = start;
+    let j = mid + 1;
+    let k = start;
+
+    while (i <= mid && j <= end) {
+        if (array[i] <= array[j]) {
+            temp[k++] = array[i++];
+        } else {
+            temp[k++] = array[j++];
         }
     }
 
-    return array;
+    while (i <= mid) {
+        temp[k++] = array[i++];
+    }
+
+    while (j <= end) {
+        temp[k++] = array[j++];
+    }
+
+    for (let x = start; x <= end; x++) {
+        array[x] = temp[x];
+    }
 }
