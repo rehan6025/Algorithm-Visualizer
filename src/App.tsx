@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { keepTheme } from "./utils/theme";
-import Toggle from "./components/Toggle";
-import SortingVisualizer from "./components/SortingVisualizer";
+import SortingVisualizer from "./pages/SortingVisualizer";
+import { Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import PathVisualizer from "./pages/PathVisualizer";
 
 function App() {
     useEffect(() => {
@@ -10,12 +12,11 @@ function App() {
     }, []);
 
     return (
-        <main className="relative">
-            <SortingVisualizer />
-            <div className="absolute right-0 top-0">
-                <Toggle />
-            </div>
-        </main>
+        <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/sorting" element={<SortingVisualizer />} />
+            <Route path="/path" element={<PathVisualizer />} />
+        </Routes>
     );
 }
 

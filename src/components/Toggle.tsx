@@ -25,8 +25,14 @@ const Toggle: React.FC = () => {
     }, [theme]);
 
     return (
-        <div className="container--toggle">
-            <button onClick={handleOnClick}>
+        <div className="  ">
+            <button
+                className="bg-gray-900 text-white px-4 py-2 font-bold cursor-pointer 
+             shadow-[4px_4px_0_#000000] hover:shadow-[2px_2px_0_#000000] 
+             hover:translate-x-[1px] hover:translate-y-[1px] 
+             active:shadow-none transition"
+                onClick={handleOnClick}
+            >
                 {togClass === "light" ? "Dark" : "Light"}
             </button>
         </div>
