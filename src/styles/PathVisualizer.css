@@ -1,0 +1,49 @@
+td {
+    border: 1px solid #5bc9b1;
+    width: 25px;
+    height: 25px;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+.node_wall {
+    animation: pulse 0.8s 1;
+    background-color: #202220;
+    border: 1px solid #202220;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: grey;
+    }
+    100% {
+        background-color: #202220;
+    }
+}
+
+.node_visited {
+    background-color: mediumaquamarine;
+}
+
+.node_start {
+    background: url("../assets/person.svg");
+    background-size: cover;
+}
+.node_end {
+    background: url("../assets/home.svg");
+    background-size: cover;
+}
+
+table {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    border-collapse: collapse;
+}

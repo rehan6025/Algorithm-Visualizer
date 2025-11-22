@@ -31,6 +31,11 @@ const SortingVisualizer = () => {
     const [minim, setMinim] = useState<number>();
     const MAX_SPEED = 350;
     const cancelRef = useRef(false);
+    const speedRef = useRef(speed);
+
+    useEffect(() => {
+        speedRef.current = speed;
+    }, [speed]);
 
     const generateArray = (size: number): number[] => {
         return Array.from({ length: size }, () =>
@@ -43,20 +48,20 @@ const SortingVisualizer = () => {
             let key = array[i];
             setMinim(i);
             await new Promise((resolve) => {
-                setTimeout(resolve, speed);
+                setTimeout(resolve, speedRef.current);
             });
             if (cancelRef.current) return array;
             let j = i - 1;
             setActive([j]);
             while (j >= 0 && array[j] > key) {
                 await new Promise((resolve) => {
-                    setTimeout(resolve, speed);
+                    setTimeout(resolve, speedRef.current);
                 });
                 if (cancelRef.current) return array;
                 setActive((prev) => [...prev, j]);
                 array[j + 1] = array[j];
                 await new Promise((resolve) => {
-                    setTimeout(resolve, speed);
+                    setTimeout(resolve, speedRef.current);
                 });
                 if (cancelRef.current) return array;
                 j--;
@@ -74,16 +79,17 @@ const SortingVisualizer = () => {
         for (let i = array.length - 1; i >= 0; i--) {
             let flag: boolean = false;
             for (let j = 0; j <= i - 1; j++) {
+                console.log("curr speed in fn :", speedRef.current);
                 setActive([j, j + 1]);
 
                 await new Promise((resolve) => {
-                    setTimeout(resolve, speed);
+                    setTimeout(resolve, speedRef.current);
                 });
                 if (cancelRef.current) return array;
 
                 if (array[j] > array[j + 1]) {
                     await new Promise((resolve) => {
-                        setTimeout(resolve, speed);
+                        setTimeout(resolve, speedRef.current);
                     });
                     if (cancelRef.current) return array;
 
@@ -95,7 +101,7 @@ const SortingVisualizer = () => {
                     setArray([...array]);
                 }
                 await new Promise((resolve) => {
-                    setTimeout(resolve, speed);
+                    setTimeout(resolve, speedRef.current);
                 });
                 if (cancelRef.current) return array;
                 setArray([...array]);
@@ -126,7 +132,7 @@ const SortingVisualizer = () => {
             for (let j = i + 1; j < array.length; j++) {
                 setActive([i, j]);
                 await new Promise((resolve) => {
-                    setTimeout(resolve, speed + 10);
+                    setTimeout(resolve, speedRef.current + 10);
                 });
                 if (cancelRef.current) return;
                 if (array[j] < array[mini]) {
@@ -135,7 +141,7 @@ const SortingVisualizer = () => {
                 }
             }
             await new Promise((resolve) => {
-                setTimeout(resolve, speed + 10);
+                setTimeout(resolve, speedRef.current + 10);
             });
             if (cancelRef.current) return;
             if (mini != i) {
@@ -143,12 +149,12 @@ const SortingVisualizer = () => {
                 array[mini] = array[i] - array[mini];
                 array[i] = array[i] - array[mini];
                 await new Promise((resolve) => {
-                    setTimeout(resolve, speed + 10);
+                    setTimeout(resolve, speedRef.current + 10);
                 });
                 if (cancelRef.current) return;
             }
             await new Promise((resolve) => {
-                setTimeout(resolve, speed + 10);
+                setTimeout(resolve, speedRef.current + 10);
             });
             setSortedEle((prev) => [...prev, i]);
         }
@@ -187,7 +193,7 @@ const SortingVisualizer = () => {
                 temp[k++] = array[j++];
             }
             await new Promise((resolve) => {
-                setTimeout(resolve, speed);
+                setTimeout(resolve, speedRef.current);
             });
             if (cancelRef.current) return array;
 
@@ -208,7 +214,7 @@ const SortingVisualizer = () => {
             setActive([x]);
             array[x] = temp[x];
             await new Promise((resolve) => {
-                setTimeout(resolve, speed);
+                setTimeout(resolve, speedRef.current);
             });
             if (cancelRef.current) return array;
         }
@@ -220,7 +226,9 @@ const SortingVisualizer = () => {
         if (low < high) {
             const pivotInd = await partition(array, low, high);
 
-            await new Promise((resolve) => setTimeout(resolve, speed));
+            await new Promise((resolve) =>
+                setTimeout(resolve, speedRef.current)
+            );
             if (cancelRef.current) return;
 
             setActive([]);
@@ -228,7 +236,9 @@ const SortingVisualizer = () => {
 
             await quickSort(array, low, pivotInd - 1);
 
-            await new Promise((resolve) => setTimeout(resolve, speed));
+            await new Promise((resolve) =>
+                setTimeout(resolve, speedRef.current)
+            );
             if (cancelRef.current) return;
 
             setActive([]);
@@ -245,7 +255,9 @@ const SortingVisualizer = () => {
 
         for (let j = low; j < high; j++) {
             setActive([i, j]);
-            await new Promise((resolve) => setTimeout(resolve, speed));
+            await new Promise((resolve) =>
+                setTimeout(resolve, speedRef.current)
+            );
             if (cancelRef.current) return high;
 
             if (array[j] <= pivot) {
@@ -255,11 +267,11 @@ const SortingVisualizer = () => {
             }
         }
 
-        await new Promise((resolve) => setTimeout(resolve, speed));
+        await new Promise((resolve) => setTimeout(resolve, speedRef.current));
         [array[i + 1], array[high]] = [array[high], array[i + 1]];
         setArray([...array]);
 
-        await new Promise((resolve) => setTimeout(resolve, speed));
+        await new Promise((resolve) => setTimeout(resolve, speedRef.current));
         if (cancelRef.current) return high;
 
         return i + 1;
@@ -381,7 +393,6 @@ const SortingVisualizer = () => {
                         onChange={(e) => {
                             setSpeed(MAX_SPEED - Number(e.target.value));
                         }}
-                        disabled={isSorting}
                         className="w-64 h-3 rounded-full appearance-none outline-none
            bg-[#e0e0e0]
            shadow-[inset_6px_6px_10px_#bebebe,inset_-6px_-6px_10px_#ffffff]
@@ -413,7 +424,7 @@ const SortingVisualizer = () => {
                         Randomize
                     </button>
                     <button
-                        className="bbg-gray-900 text-white px-4 py-2 font-bold cursor-pointer 
+                        className="bg-gray-900 text-white px-4 py-2 font-bold cursor-pointer 
              shadow-[4px_4px_0_#000000] hover:shadow-[2px_2px_0_#000000] 
              hover:translate-x-px hover:translate-y-px 
              active:shadow-none transition"
