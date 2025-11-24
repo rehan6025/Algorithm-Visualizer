@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import Node, { type NodeProps } from "../components/Path/Node";
 import "../styles/PathVisualizer.css";
 import Button from "../components/Button";
+import { dijkstra } from "../game/algorithms/Dijkstra";
 
 const PathPage: React.FC = () => {
     const [grid, setGrid] = useState<NodeProps[][]>([]);
     const [startNode, setStartNode] = useState<NodeProps>();
     const [endNode, setEndNode] = useState<NodeProps>();
+    const [shortestPath, setshortestPath] = useState<NodeProps[]>([]);
     const [visited, setVisited] = useState<NodeProps[]>([]);
     const [clicked, setClicked] = useState<boolean>(false);
     const [movingstart, setmovingstart] = useState<boolean>(false);
@@ -66,6 +68,23 @@ const PathPage: React.FC = () => {
         setClicked(true);
     };
 
+    const handleMouseLeave = (row: number, col: number) => {
+        if (movingstart) {
+            setGrid((prevGrid) => {
+                const newGrid = prevGrid.map((r) => r.map((n) => ({ ...n })));
+                newGrid[row][col].isStart = false;
+                return newGrid;
+            });
+        }
+        if (movingend) {
+            setGrid((prevGrid) => {
+                const newGrid = prevGrid.map((r) => r.map((n) => ({ ...n })));
+                newGrid[row][col].isEnd = false;
+                return newGrid;
+            });
+        }
+    };
+
     const handleMouseEnter = (row: number, col: number) => {
         if (movingstart) {
             setGrid((prevGrid) => {
@@ -94,6 +113,25 @@ const PathPage: React.FC = () => {
         }
     };
 
+    const handleMouseUp2 = (row: number, col: number) => {
+        if (movingstart) {
+            setmovingstart(false);
+            setGrid((prevGrid) => {
+                const newGrid = prevGrid.map((r) => r.map((n) => ({ ...n })));
+                newGrid[row][col].isStart = true;
+                return newGrid;
+            });
+        }
+        if (movingend) {
+            setmovingend(false);
+            setGrid((prevGrid) => {
+                const newGrid = prevGrid.map((r) => r.map((n) => ({ ...n })));
+                newGrid[row][col].isEnd = true;
+                return newGrid;
+            });
+        }
+    };
+
     const handleMouseUp = () => {
         setClicked(false);
     };
@@ -112,11 +150,25 @@ const PathPage: React.FC = () => {
         };
     }, []);
 
+    //NOW - a function that runs Dijkstra on your grid returns visited order + shortest path.
+    const visDijkstra = () => {
+        const res = dijkstra({
+            grid: grid,
+            startNode: startNode!,
+            endNode: endNode!,
+        });
+
+        setVisited(res.visitedNodes);
+        setshortestPath(res.shortestPath);
+
+        console.log(res);
+    };
+
     return (
         <div className="flex flex-col gap-8 relative h-screen w-screen">
             <div className="text-white flex gap-x-2">
                 <h1 className="px-5 py-3 text-xl bg-accent">Path Finder</h1>
-                <Button>Visualize!</Button>
+                <Button onClick={visDijkstra}>Visualize!</Button>
             </div>
 
             <div id="main-grid" className="bg-white h-full w-full">
@@ -128,6 +180,8 @@ const PathPage: React.FC = () => {
                                     <Node
                                         onMouseDown={handleMouseDown}
                                         onMouseEnter={handleMouseEnter}
+                                        onMouseLeave={handleMouseLeave}
+                                        onMouseUp={handleMouseUp2}
                                         key={cIndex}
                                         isWall={node.isWall}
                                         isStart={node.isStart}

@@ -11,17 +11,19 @@ tr {
 }
 
 .node_wall {
-    animation: pulse 0.8s 1;
+    /* animation: pulse 0.8s 1;
     background-color: #202220;
-    border: 1px solid #202220;
+    border: 1px solid #202220; */
+    background: url(../assets/wall.svg);
+    background-size: cover;
 }
 
 @keyframes pulse {
     0% {
-        background-color: grey;
+        background-color: rgb(175, 175, 98);
     }
     100% {
-        background-color: #202220;
+        background-color: yellow;
     }
 }
 
@@ -36,6 +38,11 @@ tr {
 .node_end {
     background: url("../assets/home.svg");
     background-size: cover;
+}
+
+.node_path {
+    animation: pulse 0.8s 1;
+    background-color: rgb(174, 255, 0);
 }
 
 table {
