@@ -26,7 +26,7 @@ const SortingVisualizer = () => {
     const [active, setActive] = useState<number[]>([]);
     const [sortedEle, setSortedEle] = useState<number[]>([]);
     // const [frames, setFrames] = useState<number[][]>([]);
-    const [size, setSize] = useState<number>(75);
+    const [size, setSize] = useState<number>(25);
     const [speed, setSpeed] = useState<number>(175);
     const [minim, setMinim] = useState<number>();
     const MAX_SPEED = 350;
@@ -360,6 +360,7 @@ const SortingVisualizer = () => {
                         type="range"
                         min={4}
                         max={150}
+                        value={size}
                         id="size"
                         onChange={(e) => {
                             setSize(Number(e.target.value));

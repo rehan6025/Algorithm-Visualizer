@@ -28,7 +28,31 @@ tr {
 }
 
 .node_visited {
-    background-color: mediumaquamarine;
+    position: relative;
+    overflow: hidden;
+}
+
+.node_visited::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #6dc3bb;
+    transform: scale(0);
+    transform-origin: center;
+    border-radius: inherit;
+    animation: expand 0.3s forwards;
+}
+
+@keyframes expand {
+    0% {
+        background-color: #393d7e;
+        transform: scale(0);
+    }
+
+    100% {
+        background-color: #6dc3bb;
+        transform: scale(1);
+    }
 }
 
 .node_start {
@@ -41,8 +65,17 @@ tr {
 }
 
 .node_path {
-    animation: pulse 0.8s 1;
-    background-color: rgb(174, 255, 0);
+    animation: expand2 0.8s 1;
+    background-color: rgb(15, 251, 51);
+}
+
+@keyframes expand2 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 table {

@@ -13,7 +13,7 @@ const isInsideGrid = ({
     return i >= 0 && i < grid.length && j >= 0 && j < grid[0].length;
 };
 
-export const dijkstra = ({
+export const dijkstra = async ({
     grid,
     startNode,
     endNode,
@@ -22,17 +22,16 @@ export const dijkstra = ({
     startNode: NodeProps;
     endNode: NodeProps;
 }) => {
-    const arr = grid;
-
+    const arr = grid.map((row) => row.map((n) => ({ ...n })));
     const shortestPath = [];
     const visitedNodes = [];
 
     for (let i = 0; i < arr.length; i++) {
         for (let j = 0; j < arr[0].length; j++) {
-            grid[i][j].distance = Infinity;
-            grid[i][j].prevNode = null;
-            grid[i][j].isVisited = false;
-            grid[i][j].isShortestPath = false;
+            arr[i][j].distance = Infinity;
+            arr[i][j].prevNode = null;
+            arr[i][j].isVisited = false;
+            arr[i][j].isShortestPath = false;
         }
     }
 
@@ -54,7 +53,7 @@ export const dijkstra = ({
         // check all directions, if valid and not visited, continue;
         if (arr[cell!.row][cell!.col].isVisited) continue;
         arr[cell!.row][cell!.col].isVisited = true;
-        visitedNodes.push(cell);
+        visitedNodes.push({ row: cell.row, col: cell.col });
 
         if (cell.row === endNode.row && cell.col === endNode.col) break;
 
@@ -74,10 +73,10 @@ export const dijkstra = ({
             }
         }
     }
-    let n = grid[endNode.row][endNode.col];
+    let n = arr[endNode.row][endNode.col];
     while (n !== null) {
         n.isShortestPath = true;
-        shortestPath.push(n);
+        shortestPath.push({ row: n.row, col: n.col });
         if (n.prevNode === null) break;
         //@ts-ignore
         n = n.prevNode;

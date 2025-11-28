@@ -1,18 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Node, { type NodeProps } from "../components/Path/Node";
 import "../styles/PathVisualizer.css";
 import Button from "../components/Button";
 import { dijkstra } from "../game/algorithms/Dijkstra";
 
+//testing git
+
 const PathPage: React.FC = () => {
     const [grid, setGrid] = useState<NodeProps[][]>([]);
     const [startNode, setStartNode] = useState<NodeProps>();
+    const speedRef = useRef(0);
+
     const [endNode, setEndNode] = useState<NodeProps>();
-    const [shortestPath, setshortestPath] = useState<NodeProps[]>([]);
-    const [visited, setVisited] = useState<NodeProps[]>([]);
+    const [running, setRunning] = useState(false);
     const [clicked, setClicked] = useState<boolean>(false);
     const [movingstart, setmovingstart] = useState<boolean>(false);
     const [movingend, setmovingend] = useState<boolean>(false);
+
+    const speedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        speedRef.current = Number(e.target.value);
+    };
 
     const makeGrid = () => {
         let row_size = Math.floor((window.innerHeight - 60) / 27);
@@ -121,6 +128,7 @@ const PathPage: React.FC = () => {
                 newGrid[row][col].isStart = true;
                 return newGrid;
             });
+            setStartNode(grid[row][col]);
         }
         if (movingend) {
             setmovingend(false);
@@ -129,6 +137,7 @@ const PathPage: React.FC = () => {
                 newGrid[row][col].isEnd = true;
                 return newGrid;
             });
+            setEndNode(grid[row][col]);
         }
     };
 
@@ -151,24 +160,82 @@ const PathPage: React.FC = () => {
     }, []);
 
     //NOW - a function that runs Dijkstra on your grid returns visited order + shortest path.
-    const visDijkstra = () => {
-        const res = dijkstra({
-            grid: grid,
+    const visDijkstra = async () => {
+        setRunning(true);
+        setGrid((old) => {
+            const copy = old.map((row) =>
+                row.map((n) => ({
+                    ...n,
+                    isShortestPath: false,
+                    isVisited: false,
+                }))
+            );
+
+            return copy;
+        });
+
+        const gridCopy = grid.map((row) => row.map((node) => ({ ...node })));
+        const res = await dijkstra({
+            grid: gridCopy,
             startNode: startNode!,
             endNode: endNode!,
         });
+        for (let i = 0; i < res.visitedNodes.length; i++) {
+            await new Promise((r) => setTimeout(r, speedRef.current));
 
-        setVisited(res.visitedNodes);
-        setshortestPath(res.shortestPath);
+            setGrid((old) => {
+                const copy = old.map((row) => row.map((n) => ({ ...n })));
+                const v = res.visitedNodes[i];
+                copy[v.row][v.col].isVisited = true;
+                return copy;
+            });
+        }
+
+        for (let i = 0; i < res.shortestPath.length; i++) {
+            await new Promise((r) => setTimeout(r, speedRef.current + 20));
+
+            setGrid((old) => {
+                const copy = old.map((row) => row.map((n) => ({ ...n })));
+                copy[res.shortestPath[i].row][
+                    res.shortestPath[i].col
+                ].isShortestPath = true;
+
+                return copy;
+            });
+        }
 
         console.log(res);
+        setRunning(false);
+    };
+
+    const handleResetBoard = () => {
+        makeGrid();
     };
 
     return (
         <div className="flex flex-col gap-8 relative h-screen w-screen">
             <div className="text-white flex gap-x-2">
                 <h1 className="px-5 py-3 text-xl bg-accent">Path Finder</h1>
-                <Button onClick={visDijkstra}>Visualize!</Button>
+                <Button disabled={running} onClick={visDijkstra}>
+                    Visualize!
+                </Button>
+
+                <Button onClick={handleResetBoard}>Reset Board</Button>
+                <select
+                    id="speed"
+                    className="border-none"
+                    onChange={speedChange}
+                >
+                    <option value="0" className="bg-black text-white">
+                        Fast
+                    </option>
+                    <option value="40" className="bg-black text-white">
+                        Average
+                    </option>
+                    <option value="100" className="bg-black text-white">
+                        Slow
+                    </option>
+                </select>
             </div>
 
             <div id="main-grid" className="bg-white h-full w-full">
