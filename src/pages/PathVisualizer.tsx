@@ -10,12 +10,13 @@ const PathPage: React.FC = () => {
     const [grid, setGrid] = useState<NodeProps[][]>([]);
     const [startNode, setStartNode] = useState<NodeProps>();
     const speedRef = useRef(0);
-
+    const [algo, setAlgo] = useState("dijkstra");
     const [endNode, setEndNode] = useState<NodeProps>();
     const [running, setRunning] = useState(false);
     const [clicked, setClicked] = useState<boolean>(false);
     const [movingstart, setmovingstart] = useState<boolean>(false);
     const [movingend, setmovingend] = useState<boolean>(false);
+    const cancelRef = useRef(false);
 
     const speedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         speedRef.current = Number(e.target.value);
@@ -162,6 +163,7 @@ const PathPage: React.FC = () => {
     //NOW - a function that runs Dijkstra on your grid returns visited order + shortest path.
     const visDijkstra = async () => {
         setRunning(true);
+        cancelRef.current = false;
         setGrid((old) => {
             const copy = old.map((row) =>
                 row.map((n) => ({
@@ -182,6 +184,7 @@ const PathPage: React.FC = () => {
         });
         for (let i = 0; i < res.visitedNodes.length; i++) {
             await new Promise((r) => setTimeout(r, speedRef.current));
+            if (cancelRef.current) return;
 
             setGrid((old) => {
                 const copy = old.map((row) => row.map((n) => ({ ...n })));
@@ -193,6 +196,7 @@ const PathPage: React.FC = () => {
 
         for (let i = 0; i < res.shortestPath.length; i++) {
             await new Promise((r) => setTimeout(r, speedRef.current + 20));
+            if (cancelRef.current) return;
 
             setGrid((old) => {
                 const copy = old.map((row) => row.map((n) => ({ ...n })));
@@ -204,19 +208,33 @@ const PathPage: React.FC = () => {
             });
         }
 
-        console.log(res);
         setRunning(false);
     };
 
-    const handleResetBoard = () => {
+    const visAlgo = async () => {
+        if (algo === "dijkstra") {
+            visDijkstra();
+        } else if (algo === "a*") {
+        }
+    };
+
+    const handleResetBoard = async () => {
+        cancelRef.current = true;
+        setRunning(false);
         makeGrid();
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        cancelRef.current = false;
+    };
+
+    const handleAlgoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setAlgo(e.target.value);
     };
 
     return (
         <div className="flex flex-col gap-8 relative h-screen w-screen">
             <div className="text-white flex gap-x-2">
                 <h1 className="px-5 py-3 text-xl bg-accent">Path Finder</h1>
-                <Button disabled={running} onClick={visDijkstra}>
+                <Button disabled={running} onClick={visAlgo}>
                     Visualize!
                 </Button>
 
@@ -234,6 +252,18 @@ const PathPage: React.FC = () => {
                     </option>
                     <option value="100" className="bg-black text-white">
                         Slow
+                    </option>
+                </select>
+                <select
+                    id="algorithm"
+                    className="border-none"
+                    onChange={handleAlgoChange}
+                >
+                    <option value="dijkstra" className="bg-black text-white">
+                        Dijkstra's Algorithm
+                    </option>
+                    <option value="a*" className="bg-black text-white">
+                        A* Algorithm
                     </option>
                 </select>
             </div>

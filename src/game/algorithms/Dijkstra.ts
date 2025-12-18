@@ -55,8 +55,6 @@ export const dijkstra = async ({
         arr[cell!.row][cell!.col].isVisited = true;
         visitedNodes.push({ row: cell.row, col: cell.col });
 
-        if (cell.row === endNode.row && cell.col === endNode.col) break;
-
         for (let i = 0; i < 4; i++) {
             let nr = cell.row + dx[i];
             let nc = cell.col + dy[i];
